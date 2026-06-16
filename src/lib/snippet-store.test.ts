@@ -86,14 +86,23 @@ describe("snippet-store", () => {
     expect(listActiveSnippets()).toEqual([]);
   });
 
-  it("burns after the first get", () => {
+  it("burns after the first get and updates active list", () => {
     const snippet = createSnippet({
       content: "one time",
       ttlSeconds: 3600,
       burnAfterRead: true,
     });
 
+    // It should appear in the active list before being read
+    expect(listActiveSnippets()).toContainEqual(snippet);
+
+    // First get retrieves the snippet and burns it
     expect(getSnippet(snippet.id)).toEqual(snippet);
+
+    // Subsequent get returns null
     expect(getSnippet(snippet.id)).toBeNull();
+
+    // It should no longer appear in the active list after being read
+    expect(listActiveSnippets()).not.toContainEqual(snippet);
   });
 });

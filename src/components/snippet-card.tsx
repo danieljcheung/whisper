@@ -1,6 +1,7 @@
 import type { Snippet } from "@/lib/snippet-store";
 import { deleteSnippetAction } from "@/app/actions";
 import CopyButton from "./copy-button";
+import RevealBurnForm from "./reveal-burn-form";
 
 interface SnippetCardProps {
   snippet: Snippet;
@@ -28,22 +29,41 @@ export default function SnippetCard({ snippet }: SnippetCardProps) {
         )}
       </div>
 
-      <pre className="font-mono text-sm bg-zinc-950 text-zinc-100 p-3 rounded border border-zinc-800/80 whitespace-pre-wrap break-words select-all max-h-96 overflow-y-auto">
-        {snippet.content}
-      </pre>
+      {snippet.burnAfterRead ? (
+        <>
+          <RevealBurnForm id={snippet.id} />
+          <div className="flex justify-end mt-1 pt-2 border-t border-zinc-800/55">
+            <form action={deleteSnippetAction}>
+              <input type="hidden" name="id" value={snippet.id} />
+              <button
+                type="submit"
+                className="px-3 py-1 text-sm font-medium bg-red-950/40 hover:bg-red-900/40 text-red-300 rounded border border-red-900/50 hover:border-red-800 transition duration-150 cursor-pointer select-none"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </>
+      ) : (
+        <>
+          <pre className="font-mono text-sm bg-zinc-950 text-zinc-100 p-3 rounded border border-zinc-800/80 whitespace-pre-wrap break-words select-all max-h-96 overflow-y-auto">
+            {snippet.content}
+          </pre>
 
-      <div className="flex justify-between items-center mt-1 pt-2 border-t border-zinc-800/55">
-        <CopyButton content={snippet.content} />
-        <form action={deleteSnippetAction}>
-          <input type="hidden" name="id" value={snippet.id} />
-          <button
-            type="submit"
-            className="px-3 py-1 text-sm font-medium bg-red-950/40 hover:bg-red-900/40 text-red-300 rounded border border-red-900/50 hover:border-red-800 transition duration-150 cursor-pointer select-none"
-          >
-            Delete
-          </button>
-        </form>
-      </div>
+          <div className="flex justify-between items-center mt-1 pt-2 border-t border-zinc-800/55">
+            <CopyButton content={snippet.content} />
+            <form action={deleteSnippetAction}>
+              <input type="hidden" name="id" value={snippet.id} />
+              <button
+                type="submit"
+                className="px-3 py-1 text-sm font-medium bg-red-950/40 hover:bg-red-900/40 text-red-300 rounded border border-red-900/50 hover:border-red-800 transition duration-150 cursor-pointer select-none"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </>
+      )}
     </div>
   );
 }

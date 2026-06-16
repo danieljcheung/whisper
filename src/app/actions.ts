@@ -10,7 +10,7 @@ import {
   requireWhisperPassword,
   verifySessionToken,
 } from "@/lib/auth";
-import { createSnippet, deleteSnippet } from "@/lib/snippet-store";
+import { createSnippet, deleteSnippet, getSnippet } from "@/lib/snippet-store";
 import type { SnippetTtlSeconds } from "@/lib/snippet-store";
 
 export interface ActionState {
@@ -114,3 +114,35 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete(SESSION_COOKIE_NAME);
   redirect("/login");
 }
+
+export interface RevealActionState {
+  content?: string;
+  error?: string;
+}
+
+export async function revealSnippetAction(
+  prevState: RevealActionState,
+  formData: FormData
+): Promise<RevealActionState> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const isAuthenticated = await verifySessionToken(token);
+
+  if (!isAuthenticated) {
+    redirect("/login");
+  }
+
+  const id = formData.get("id");
+  if (typeof id !== "string") {
+    return { error: "Snippet not found or expired." };
+  }
+
+  const snippet = getSnippet(id);
+
+  if (!snippet) {
+    return { error: "Snippet not found or expired." };
+  }
+
+  return { content: snippet.content };
+}
+
